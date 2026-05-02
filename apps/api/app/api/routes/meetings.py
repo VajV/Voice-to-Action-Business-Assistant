@@ -127,6 +127,9 @@ async def send_meeting_to_slack(
     try:
         await send_to_slack(payload.webhook_url, meeting.title, analysis)
     except Exception as error:
-        raise HTTPException(status_code=502, detail=f"Slack delivery failed: {error}") from error
+        raise HTTPException(
+            status_code=502,
+            detail="Slack delivery failed. Please verify your webhook URL.",
+        ) from error
 
     return SlackSendResponse(ok=True, message="Meeting summary sent to Slack")

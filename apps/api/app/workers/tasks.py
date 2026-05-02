@@ -59,6 +59,7 @@ def process_meeting(db: Session, meeting_id: str) -> None:
         db.add(analysis)
         update_progress(db, meeting, MeetingStatus.completed, "completed", 100)
     except Exception as error:
+        db.rollback()
         meeting.status = MeetingStatus.failed
         meeting.error_message = str(error)
         meeting.progress_stage = "failed"

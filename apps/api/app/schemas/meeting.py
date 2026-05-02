@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from app.db.models import MeetingStatus, SourceType
 from app.schemas.analysis import MeetingAnalysisPayload
@@ -35,6 +35,17 @@ class MeetingResultResponse(MeetingAnalysisPayload):
 
 class SlackSendRequest(BaseModel):
     webhook_url: str
+
+    @field_validator("webhook_url")
+    @classmethod
+    def validate_slack_webhook_url(cls, value: str) -> str:
+        allowed_prefixes = (
+            "https://hooks.slack.com/services/",
+            "https://hooks.slack.com/workflows/",
+        )
+        if not value.startswith(allowed_prefixes):
+            raise ValueError("Slack webhook URL must use a Slack hooks URL")
+        return value
 
 
 class SlackSendResponse(BaseModel):
