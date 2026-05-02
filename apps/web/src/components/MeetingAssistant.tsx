@@ -61,7 +61,13 @@ export function MeetingAssistant() {
       const created = await createMeeting(formData);
       const nextMeeting = await getMeeting(created.id);
       setMeeting(nextMeeting);
-      setResult(null);
+
+      if (nextMeeting.status === "completed") {
+        const nextResult = await getMeetingResult(nextMeeting.id);
+        setResult(nextResult);
+      } else {
+        setResult(null);
+      }
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed");
     } finally {
