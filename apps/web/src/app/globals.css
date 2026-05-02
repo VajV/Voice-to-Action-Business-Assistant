@@ -102,11 +102,20 @@ h1 {
 }
 
 .field input,
-.field select {
+.field select,
+.action-item input,
+.action-item select,
+.action-item textarea,
+.integration-grid input {
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px 14px;
   width: 100%;
+}
+
+.action-item textarea {
+  min-height: 84px;
+  resize: vertical;
 }
 
 .button {
@@ -131,6 +140,26 @@ h1 {
   color: var(--accent);
   font-weight: 800;
   padding: 12px 18px;
+}
+
+.meeting-row {
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--accent);
+  display: flex;
+  font-weight: 700;
+  justify-content: space-between;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.inline-fields,
+.integration-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .status {
@@ -214,6 +243,11 @@ h1 {
 
 @media (max-width: 860px) {
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .inline-fields,
+  .integration-grid {
     grid-template-columns: 1fr;
   }
 }

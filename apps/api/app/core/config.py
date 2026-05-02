@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     openai_base_url: str | None = None
     openrouter_api_key: str | None = None
     openrouter_analysis_model: str = "nvidia/nemotron-3-super-120b-a12b:free"
+    notion_api_base_url: str = "https://api.notion.com/v1"
+    trello_api_base_url: str = "https://api.trello.com/1"
     max_upload_mb: int = 200
     demo_mode: bool = True
 

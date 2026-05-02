@@ -10,7 +10,8 @@ dependencies = [
   "pydantic-settings>=2.5.0",
   "python-multipart>=0.0.9",
   "sqlalchemy>=2.0.35",
-  "uvicorn[standard]>=0.30.6"
+  "uvicorn[standard]>=0.30.6",
+  "yt-dlp>=2025.1.15"
 ]
 
 [project.optional-dependencies]

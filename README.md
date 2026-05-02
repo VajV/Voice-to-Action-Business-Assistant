@@ -6,7 +6,7 @@ MVP web app that turns meeting audio into:
 - a short summary;
 - key decisions;
 - structured action items;
-- a Slack-ready update.
+- Slack, Notion, and Trello-ready updates.
 
 The repository is a monorepo:
 
@@ -19,7 +19,7 @@ apps/
 ## MVP flow
 
 ```text
-Audio upload → transcription → AI analysis → action items → Slack webhook
+Audio/YouTube input → transcription → AI analysis → editable action items → integrations
 ```
 
 ## Current MVP scope
@@ -27,19 +27,23 @@ Audio upload → transcription → AI analysis → action items → Slack webhoo
 Implemented:
 
 - upload `.mp3`, `.wav`, `.m4a`, `.webm`;
+- YouTube audio import via `yt-dlp`;
 - meeting lifecycle: queued, processing, transcribed, completed, failed;
 - demo transcription and analysis fallback without credentials;
 - optional OpenAI transcription/analysis when `OPENAI_API_KEY` is configured and `DEMO_MODE=false`;
 - OpenRouter-compatible AI analysis via `OPENROUTER_API_KEY`;
+- recent meetings history;
+- editable action items before sending them to integrations;
 - result page with transcript, summary, decisions, risks, follow-up questions, and action items;
 - Slack Incoming Webhook delivery;
+- Notion database page creation;
+- Trello card creation for action items;
 - FastAPI tests for the core backend flow.
 
 Deferred to later versions:
 
-- YouTube import via `yt-dlp`;
 - microphone recording;
-- OAuth for Slack/Notion/Trello;
+- OAuth for Slack/Notion/Trello instead of manual token/webhook entry;
 - Celery/Redis production worker;
 - PostgreSQL migrations via Alembic;
 - user accounts and billing.
@@ -89,6 +93,8 @@ OPENAI_ANALYSIS_MODEL=gpt-4o-mini
 OPENAI_BASE_URL=
 OPENROUTER_API_KEY=
 OPENROUTER_ANALYSIS_MODEL=nvidia/nemotron-3-super-120b-a12b:free
+NOTION_API_BASE_URL=https://api.notion.com/v1
+TRELLO_API_BASE_URL=https://api.trello.com/1
 DEMO_MODE=true
 DATABASE_URL=sqlite:///./voice_to_action.db
 LOCAL_STORAGE_DIR=./storage
@@ -130,6 +136,31 @@ Fields:
 - `title`;
 - `language`.
 
+### Import YouTube meeting
+
+```http
+POST /api/meetings/youtube
+Content-Type: application/json
+```
+
+Body:
+
+```json
+{
+  "url": "https://www.youtube.com/watch?v=...",
+  "title": "Customer interview",
+  "language": "auto"
+}
+```
+
+Requires `yt-dlp` and FFmpeg in the runtime image.
+
+### List recent meetings
+
+```http
+GET /api/meetings?limit=10
+```
+
 ### Get meeting status
 
 ```http
@@ -153,6 +184,60 @@ Body:
 ```json
 {
   "webhook_url": "https://hooks.slack.com/services/..."
+}
+```
+
+### Send to Notion
+
+```http
+POST /api/meetings/{meeting_id}/send/notion
+```
+
+Body:
+
+```json
+{
+  "token": "secret_...",
+  "database_id": "..."
+}
+```
+
+### Send to Trello
+
+```http
+POST /api/meetings/{meeting_id}/send/trello
+```
+
+Body:
+
+```json
+{
+  "api_key": "...",
+  "token": "...",
+  "list_id": "..."
+}
+```
+
+### Update action items
+
+```http
+PATCH /api/meetings/{meeting_id}/action-items
+```
+
+Body:
+
+```json
+{
+  "action_items": [
+    {
+      "title": "Prepare launch plan",
+      "owner": "Alex",
+      "due_date": "2026-05-10",
+      "priority": "high",
+      "context": "Needed before customer rollout",
+      "confidence": 0.91
+    }
+  ]
 }
 ```
 
