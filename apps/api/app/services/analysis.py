@@ -29,7 +29,15 @@ Do not invent owners or dates. Preserve the transcript language."""
 
 class AnalysisService:
     def analyze(self, transcript: str) -> tuple[MeetingAnalysisPayload, str, str]:
-        if settings.demo_mode or not settings.openai_api_key:
+        api_key = settings.openrouter_api_key or settings.openai_api_key
+        base_url = settings.openai_base_url
+        model = settings.openai_analysis_model
+
+        if settings.openrouter_api_key:
+            base_url = base_url or "https://openrouter.ai/api/v1"
+            model = settings.openrouter_analysis_model
+
+        if settings.demo_mode or not api_key:
             return (
                 MeetingAnalysisPayload(
                     summary=(
@@ -74,9 +82,13 @@ class AnalysisService:
                 "v1",
             )
 
-        client = OpenAI(api_key=settings.openai_api_key)
+        if base_url:
+            client = OpenAI(api_key=api_key, base_url=base_url)
+        else:
+            client = OpenAI(api_key=api_key)
+
         response = client.chat.completions.create(
-            model=settings.openai_analysis_model,
+            model=model,
             response_format={"type": "json_object"},
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -90,4 +102,4 @@ class AnalysisService:
         except (json.JSONDecodeError, ValidationError) as error:
             raise ValueError("AI analysis returned invalid structured output") from error
 
-        return payload, settings.openai_analysis_model, "v1"
+        return payload, model, "v1"

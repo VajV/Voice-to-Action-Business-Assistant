@@ -30,6 +30,7 @@ Implemented:
 - meeting lifecycle: queued, processing, transcribed, completed, failed;
 - demo transcription and analysis fallback without credentials;
 - optional OpenAI transcription/analysis when `OPENAI_API_KEY` is configured and `DEMO_MODE=false`;
+- OpenRouter-compatible AI analysis via `OPENROUTER_API_KEY`;
 - result page with transcript, summary, decisions, risks, follow-up questions, and action items;
 - Slack Incoming Webhook delivery;
 - FastAPI tests for the core backend flow.
@@ -85,6 +86,9 @@ docker compose up
 OPENAI_API_KEY=
 OPENAI_TRANSCRIPTION_MODEL=whisper-1
 OPENAI_ANALYSIS_MODEL=gpt-4o-mini
+OPENAI_BASE_URL=
+OPENROUTER_API_KEY=
+OPENROUTER_ANALYSIS_MODEL=nvidia/nemotron-3-super-120b-a12b:free
 DEMO_MODE=true
 DATABASE_URL=sqlite:///./voice_to_action.db
 LOCAL_STORAGE_DIR=./storage
@@ -94,6 +98,16 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
 `DEMO_MODE=true` lets the app run without OpenAI credentials using deterministic demo output.
+
+For OpenRouter analysis, set:
+
+```env
+DEMO_MODE=false
+OPENROUTER_API_KEY=your-openrouter-key
+OPENROUTER_ANALYSIS_MODEL=nvidia/nemotron-3-super-120b-a12b:free
+```
+
+OpenRouter is used for transcript analysis. Audio transcription still requires a speech-to-text provider such as OpenAI Whisper, or the app can use demo transcription while validating the UI flow.
 
 ## API
 
